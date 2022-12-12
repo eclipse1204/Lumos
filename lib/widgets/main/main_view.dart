@@ -1,0 +1,83 @@
+import 'dart:async';
+
+import 'package:finale/services/generic.dart';
+import 'package:finale/util/constants.dart';
+import 'package:finale/util/external_actions/external_actions.dart';
+//import 'package:finale/widgets/entity/lastfm/album_view.dart';
+//import 'package:finale/widgets/entity/lastfm/artist_view.dart';
+//import 'package:finale/widgets/entity/lastfm/track_view.dart';
+//import 'package:finale/widgets/main/search_view.dart';
+//import 'package:finale/widgets/profile/profile_view.dart';
+//import 'package:finale/widgets/scrobble/scrobble_view.dart';
+//import 'package:finale/widgets/tools/tools_view.dart';
+import 'package:flutter/material.dart';
+
+import '../scrobble/scrobble_view.dart';
+
+class MainView extends StatefulWidget {
+  final String username;
+
+  const MainView({required this.username});
+
+  @override
+  State<StatefulWidget> createState() => _MainViewState();
+}
+
+class _MainViewState extends State<MainView> {
+  late StreamSubscription _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _subscription = externalActionsStream.listen((action) {
+      if (action.type == ExternalActionType.scrobbleOnce ||
+          action.type == ExternalActionType.scrobbleContinuously) {
+        setState(() {
+          Navigator.popUntil(context, (route) => route.isFirst);
+        });
+      } else if (action.type == ExternalActionType.viewAlbum) {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //       builder: (_) => AlbumView(album: action.value as BasicAlbum)),
+        // );
+      } else if (action.type == ExternalActionType.viewArtist) {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //       builder: (_) => ArtistView(artist: action.value as BasicArtist)),
+        // );
+        // } else if (action.type == ExternalActionType.viewTrack) {
+        //   Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //         builder: (_) => TrackView(track: action.value as Track)),
+        //   );
+      } else if (action.type == ExternalActionType.viewTab) {
+        setState(() {
+          Navigator.popUntil(context, (route) => route.isFirst);
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        children: [
+          //ProfileView(username: widget.username, isTab: true),
+          //const SearchView(),
+          const ScrobbleView(),
+          //const ToolsView(),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
